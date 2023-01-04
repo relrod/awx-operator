@@ -6,6 +6,25 @@
   playbook: playbooks/awx.yml
   snakeCaseParameters: False
 
+# This is a hack.
+# We want to run the playbook above when an AWXTaskConfigOverride is created,
+# but we can't just do that here because the playbook expects all kinds of
+# "AWX" object variables to be set. So instead, we use a role to mark the
+# AWXTaskConfigOverride as a dependency of the AWX object. Then when
+# it's updated, hopefully playbooks/awx.yml will run.
+
+- version: v1beta1
+  group: awx.ansible.com
+  kind: AWXTaskConfigOverride
+  role: config_override_is_dependency
+  snakeCaseParameters: False
+
+#- version: v1beta1
+#  group: awx.ansible.com
+#  kind: AWXWebConfigOverride
+#  playbook: playbooks/awx.yml
+#  snakeCaseParameters: False
+
 - version: v1beta1
   group: awx.ansible.com
   kind: AWXBackup

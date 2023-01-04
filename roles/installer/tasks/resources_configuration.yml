@@ -6,7 +6,7 @@
     kind: Pod
     namespace: '{{ ansible_operator_meta.namespace }}'
     label_selectors:
-      - "app.kubernetes.io/name={{ ansible_operator_meta.name }}"
+      - "app.kubernetes.io/name={{ ansible_operator_meta.name }}-task"
       - "app.kubernetes.io/managed-by={{ deployment_type }}-operator"
       - "app.kubernetes.io/component={{ deployment_type }}"
     field_selectors:
@@ -16,6 +16,15 @@
 - name: Set the resource pod name as a variable.
   set_fact:
     tower_pod_name: "{{ tower_pod['resources'][0]['metadata']['name'] | default('') }}"
+
+- name: Get a task config override if it exists.
+  k8s_info:
+    api_version: awx.ansible.com/v1beta1
+    kind: AWXTaskConfigOverride
+    namespace: '{{ ansible_operator_meta.namespace }}'
+    label_selectors:
+      - "awx.ansible.com/awx_name={{ ansible_operator_meta.name }}"
+  register: task_config_override_obj
 
 - name: Set user provided control plane ee image
   set_fact:
@@ -205,15 +214,14 @@
   set_fact:
     _redis_image: "{{ _custom_redis_image | default(lookup('env', 'RELATED_IMAGE_AWX_REDIS')) | default(_default_redis_image, true) }}"
 
-- name: Apply deployment resources
+- name: Apply task deployment resource
   k8s:
     apply: yes
-    definition: "{{ lookup('template', 'deployments/{{ item }}.yaml.j2') }}"
+    definition: "{{ lookup('template', 'deployments/task.yaml.j2') }}"
     wait: yes
-  loop:
-    - web
-    - task
-  register: this_deployment_result
+  vars:
+    override: "{{ task_config_override_obj['resources'][0] | default({}) }}"
+  register: task_deployment_result
 
 - block:
     - name: Delete pod to reload a resource configuration

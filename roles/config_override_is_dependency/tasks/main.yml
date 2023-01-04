@@ -1,0 +1,46 @@
+---
+
+# This is a really, really hacky way to do this, but I can't figure out a better
+# way. Basically, we need to associate these config override objects with the
+# AWX object they are configuring, in some way.
+#
+# We cannot define a 'watcher' in 'watches.yml' that just runs the install
+# playbook when these objects change, because the install playbook wants a bunch
+# of AWX vars defined, and we'd have to rework the whole thing to look up an AWX
+# object by name and then get the vars from that. It's a whole mess.
+#
+# But what we /can/ do is mark the override objects as owned by the AWX object
+# which will trigger the install playbook when they change.
+#
+# This is doubly stupid in that we need to set a label to filter on in the
+# config CR, but then we don't (that I know of) have a way to get the value of
+# that label here. So then we also require it in the config CR spec itself.
+#
+# Someone with more experience with the operator-sdk should probably come up
+# with a better way to do this.
+
+- name: Get the current resource pod information.
+  k8s_info:
+    api_version: awx.ansible.com/v1beta1
+    kind: AWX
+    namespace: '{{ ansible_operator_meta.namespace }}'
+    name: '{{ awx_name }}'
+  register: awx_object
+
+- name: Set the owner reference for the config override objects.
+  k8s:
+    state: present
+    api_version: awx.ansible.com/v1beta1
+    kind: '{{ item }}'
+    namespace: '{{ ansible_operator_meta.namespace }}'
+    name: '{{ ansible_operator_meta.name }}'
+    resource_definition:
+      metadata:
+        ownerReferences:
+          - apiVersion: awx.ansible.com/v1beta1
+            uid: '{{ awx_object.resources[0].metadata.uid }}'
+            name: '{{ awx_name }}'
+            kind: AWX
+  loop:
+    - AWXTaskConfigOverride
+    #- AWXWebConfigOverride

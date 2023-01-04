@@ -26,6 +26,27 @@
             image_version: "{{ image_version | default(omit) }}"
             development_mode: "{{ development_mode | default(omit) | bool }}"
             image_pull_policy: "{{ image_pull_policy | default(omit) }}"
+            replicas: 3
+            web_extra_env: |
+              - name: HEY
+                value: YOOOOOOOOOOOOOO
             # ee_images:
             #   - name: test-ee
             #     image: quay.io/<user>/awx-ee
+
+    - name: Deploy AWXTaskConfigOverride
+      k8s:
+        state: "{{ state | default('present') }}"
+        namespace: "{{ namespace | default('default') }}"
+        apply: yes
+        wait: yes
+        definition:
+          apiVersion: awx.ansible.com/v1beta1
+          kind: AWXTaskConfigOverride
+          metadata:
+            name: awx-atco
+          labels:
+            awx.ansible.com/awx_name: awx
+          spec:
+            awx_name: awx
+            replicas: 7

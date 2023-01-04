@@ -280,7 +280,7 @@ spec:
                     type: object
                 type: object
               postgres_init_container_resource_requirements:
-                description: Resource requirements for the postgres init container
+                description: (Deprecated) Resource requirements for the postgres init container - This field is not used. Specifying it in your AWX spec will be an error in a future version of awx-operator.
                 properties:
                   requests:
                     properties:
@@ -326,12 +326,7 @@ spec:
               service_account_annotations:
                 description: ServiceAccount annotations
                 type: string
-              web_replicas:
-                description: Number of web instance replicas
-                type: integer
-                default: 1
-                format: int32
-              task_replicas:
+              replicas:
                 description: Number of task instance replicas
                 type: integer
                 default: 1

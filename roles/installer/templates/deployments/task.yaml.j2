@@ -9,7 +9,7 @@ metadata:
     {{ lookup("template", "labels/common.yaml.j2")  | indent(width=4) | trim }}
     {{ lookup("template", "labels/version.yaml.j2") | indent(width=4) | trim }}
 spec:
-  replicas: {{ task_replicas }}
+  replicas: {{ replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/name: '{{ ansible_operator_meta.name }}-task'
@@ -21,9 +21,9 @@ spec:
         app.kubernetes.io/name: '{{ ansible_operator_meta.name }}-task'
         {{ lookup("template", "labels/common.yaml.j2")  | indent(width=8) | trim }}
         {{ lookup("template", "labels/version.yaml.j2") | indent(width=8) | trim }}
-{% if annotations %}
+{% if annotations or ('annotations' in override) %}
       annotations:
-        {{ annotations | indent(width=8) }}
+        {{ override.annotations | default(annotations) | indent(width=8) }}
 {% endif %}
     spec:
       serviceAccountName: '{{ ansible_operator_meta.name }}'
@@ -55,7 +55,7 @@ spec:
               mkdir -p /etc/pki/ca-trust/extracted/{java,pem,openssl,edk2}
               update-ca-trust
 {% endif %}
-{% if init_container_extra_commands %}
+{% if init_container_extra_commands or "init_container_extra_commands" in override %}
               {{ init_container_extra_commands | indent(width=14) }}
 {% endif %}
           env:
@@ -82,7 +82,7 @@ spec:
               subPath: bundle-ca.crt
               readOnly: true
 {% endif %}
-{% if init_container_extra_volume_mounts -%}
+{% if init_container_extra_volume_mounts or "init_container_extra_volume_mounts" in override -%}
             {{ init_container_extra_volume_mounts | indent(width=12, first=True) }}
 {% endif %}
 {% if projects_persistence|bool and is_k8s|bool %}
@@ -131,10 +131,10 @@ spec:
           securityContext:
             privileged: true
 {% endif %}
-{% if task_command %}
+{% if task_command or "task_command" in override %}
           command: {{ task_command }}
 {% endif %}
-{% if task_args %}
+{% if task_args or "task_args" in override %}
           args: {{ task_args }}
 {% endif %}
           volumeMounts:
@@ -188,7 +188,7 @@ spec:
             - name: awx-devel
               mountPath: "/awx_devel"
 {% endif %}
-{% if task_extra_volume_mounts -%}
+{% if task_extra_volume_mounts or "task_extra_volume_mounts" in override -%}
             {{ task_extra_volume_mounts | indent(width=12, first=True) }}
 {% endif %}
           env:
@@ -212,7 +212,7 @@ spec:
             - name: AWX_KUBE_DEVEL
               value: "1"
 {% endif %}
-{% if task_extra_env -%}
+{% if task_extra_env or "task_extra_env" in override -%}
             {{ task_extra_env | indent(width=12, first=True) }}
 {% endif %}
           resources: {{ task_resource_requirements }}
@@ -257,7 +257,7 @@ spec:
               mountPath: "/var/run/receptor"
             - name: "{{ ansible_operator_meta.name }}-projects"
               mountPath: "/var/lib/awx/projects"
-{% if ee_extra_volume_mounts -%}
+{% if ee_extra_volume_mounts or "ee_extra_volume_mounts" in override -%}
             {{ ee_extra_volume_mounts | indent(width=12, first=True) }}
 {% endif %}
           env:
@@ -267,18 +267,18 @@ spec:
                 fieldRef:
                   fieldPath: status.podIP
 {% endif %}
-{% if ee_extra_env -%}
+{% if ee_extra_env or "ee_extra_env" in override -%}
             {{ ee_extra_env | indent(width=12, first=True) }}
 {% endif %}
-{% if node_selector %}
+{% if node_selector or "node_selector" in override %}
       nodeSelector:
         {{ node_selector | indent(width=8) }}
 {% endif %}
-{% if topology_spread_constraints %}
+{% if topology_spread_constraints or "topology_spread_constraints" in override %}
       topologySpreadConstraints:
         {{ topology_spread_constraints | indent(width=8) }}
 {% endif %}
-{% if tolerations %}
+{% if tolerations or "tolerations" in override %}
       tolerations:
         {{ tolerations | indent(width=8) }}
 {% endif %}
@@ -301,24 +301,6 @@ spec:
             items:
               - key: bundle-ca.crt
                 path: 'bundle-ca.crt'
-{% endif %}
-{% if ingress_type | lower == 'route' and route_tls_termination_mechanism | lower == 'passthrough' %}
-        - name: "{{ ansible_operator_meta.name }}-nginx-certs"
-          secret:
-            secretName: "{{ route_tls_secret }}"
-            items:
-              - key: tls.key
-                path: 'web.key'
-              - key: tls.crt
-                path: 'web.crt'
-{% endif %}
-{% if ldap_cacert_ca_crt %}
-        - name: "{{ ansible_operator_meta.name }}-ldap-cacert"
-          secret:
-            secretName: "{{ ldap_cacert_secret }}"
-            items:
-              - key: ldap-ca.crt
-                path: 'ldap-ca.crt'
 {% endif %}
         - name: "{{ ansible_operator_meta.name }}-application-credentials"
           secret:
@@ -398,6 +380,6 @@ spec:
           hostPath:
             path: /awx_devel
 {% endif %}
-{% if extra_volumes -%}
+{% if extra_volumes or "extra_volumes" in override -%}
         {{ extra_volumes | indent(width=8, first=True) }}
 {% endif %}

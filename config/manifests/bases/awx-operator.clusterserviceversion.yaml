@@ -16,6 +16,10 @@ spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
+
+    ############################################################################
+    # AWXBackup
+    ############################################################################
     - description: Back up a deployment of the awx, including jobs, inventories, and
         credentials
       displayName: AWX Backup
@@ -82,6 +86,10 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
       version: v1beta1
+
+    ############################################################################
+    # AWXRestore
+    ############################################################################
     - description: Restore a previous awx deployment from an AWXBackup. The deployment
         name you provide will be the name of the new AWX CR that will be created.
       displayName: AWX Restore
@@ -151,6 +159,10 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
       version: v1beta1
+
+    ############################################################################
+    # AWX
+    ############################################################################
     - description: Deploy a new instance of AWX
       displayName: AWX
       kind: AWX
@@ -226,7 +238,7 @@ spec:
         path: ingress_api_version
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:advanced
-        - urn:alm:descriptor:com.tectonic.ui:text 
+        - urn:alm:descriptor:com.tectonic.ui:text
       - displayName: Ingress Path
         path: ingress_path
         x-descriptors:
@@ -734,6 +746,196 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:text
       version: v1beta1
+
+    ############################################################################
+    # AWXTaskConfigOverride
+    ############################################################################
+    - description: Override configuration of task pods
+      displayName: AWXTaskConfigOverride
+      kind: AWXTaskConfigOverride
+      name: awxtaskconfigoverrides.awx.ansible.com
+      specDescriptors:
+      - displayName: Image Pull Policy
+        path: image_pull_policy
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:imagePullPolicy
+      - displayName: Image Pull Secrets
+        path: image_pull_secrets
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:io.kubernetes:Secret
+      - displayName: Task Container Resource Requirements
+        path: task_resource_requirements
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:resourceRequirements
+      - displayName: EE Control Plane Container Resource Requirements
+        path: ee_resource_requirements
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:resourceRequirements
+      - displayName: Redis Container Resource Requirements
+        path: redis_resource_requirements
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:resourceRequirements
+      - displayName: Task Pod Replicas
+        path: task_replicas
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:number
+      - displayName: Should the task container deployed with privileged level?
+        path: task_privileged
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - displayName: Image
+        path: image
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - displayName: Image Version
+        path: image_version
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - displayName: Redis Image
+        path: redis_image
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - displayName: Redis Image Version
+        path: redis_image_version
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - displayName: Redis Capabilities
+        path: redis_capabilities
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - displayName: Task Args
+        path: task_args
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - displayName: Task Command
+        path: task_command
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - description: Environment variables to be added to Task container
+        displayName: Task Extra Env
+        path: task_extra_env
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - description: Specify volume mounts to be added to Execution container
+        displayName: EE Extra Volume Mounts
+        path: ee_extra_volume_mounts
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - description: Registry path to the Execution Environment container to use
+        displayName: EE Images
+        path: ee_images
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - description: Environment variables to be added to EE container
+        displayName: EE Extra Env
+        path: ee_extra_env
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - description: Registry path to the Execution Environment container to use on
+          control plane pods
+        displayName: Control Plane EE Image
+        path: control_plane_ee_image
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - description: EE Images Pull Credentials Secret
+        displayName: EE Images Pull Credentials Secret
+        path: ee_pull_credentials_secret
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:io.kubernetes:Secret
+      - description: Specify volume mounts to be added to Task container
+        displayName: Task Extra Volume Mounts
+        path: task_extra_volume_mounts
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - description: Specify extra volumes to add to the Task pod
+        displayName: Extra Volumes
+        path: extra_volumes
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - displayName: Node Selector
+        path: node_selector
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - displayName: Topology Spread Constraints
+        path: topology_spread_constraints
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - displayName: Control Plane Priority Class
+        path: control_plane_priority_class
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - displayName: Annotations
+        path: annotations
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - displayName: Tolerations
+        path: tolerations
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - displayName: API Extra Settings
+        path: extra_settings
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - displayName: Security Context Settings
+        path: security_context_settings
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - description: Init Container image to use
+        displayName: Init Container Image
+        path: init_container_image
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - description: Init container image version to use
+        displayName: Init Container Image Version
+        path: init_container_image_version
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - description: Specify Extra commands for the Init container
+        displayName: Init Container Extra Commands
+        path: init_container_extra_commands
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      - description: Specify volume mounts to be added to Init container
+        displayName: Init Container Extra Volume Mounts
+        path: init_container_extra_volume_mounts
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:advanced
+        - urn:alm:descriptor:com.tectonic.ui:hidden
+      version: v1beta1
+
   description: |
     AWX is designed to help accelerate and scale your business through automation.
 
