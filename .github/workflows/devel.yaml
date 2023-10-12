@@ -40,7 +40,7 @@ jobs:
 
       - name: Build Image
         run: |
-          IMG=awx-operator:${GITHUB_REF##*/} make docker-build
+          IMG=ghcr.io/${OWNER_LC}/awx-operator:${GITHUB_REF##*/} make docker-build
 
       #- name: Push development images
       #  run: |
