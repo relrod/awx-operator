@@ -42,6 +42,6 @@ jobs:
         run: |
           IMG=awx-operator:${GITHUB_REF##*/} make docker-build
 
-      - name: Push development images
-        run: |
-          docker push ghcr.io/${OWNER_LC}/awx-operator:${GITHUB_REF##*/}
+      #- name: Push development images
+      #  run: |
+      #    docker push ghcr.io/${OWNER_LC}/awx-operator:${GITHUB_REF##*/}
