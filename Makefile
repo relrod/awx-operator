@@ -96,7 +96,7 @@ run: ansible-operator ## Run against the configured Kubernetes cluster in ~/.kub
 
 .PHONY: docker-build
 docker-build: ## Build docker image with the manager.
-	${CONTAINER_CMD} build $(BUILD_ARGS) -t ${IMG} .
+	${CONTAINER_CMD} buildx build --load --platform linux/amd64,linux/arm64 $(BUILD_ARGS) -t ${IMG} .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
